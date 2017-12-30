@@ -55,9 +55,12 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private int currentNumber = 0;
+    private int score = 0;
+    private ImageButton imageButtonCorrectChoice;
     private String[] imageNames = null;
     private View mContentView;
     private View mControlsView;
+
     private final Runnable mShowPart2Runnable = new Runnable() {
         @Override
         public void run() {
@@ -93,31 +96,39 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         ((ImageButton) findViewById(R.id.imageButtonOption1)).setOnClickListener(this);
         ((ImageButton) findViewById(R.id.imageButtonOption2)).setOnClickListener(this);
 
-        Toast.makeText(getApplicationContext(), "Irgendwas mit Aliens", Toast.LENGTH_LONG).show();
         displayHousenumber(currentNumber);
     }
 
     public int generateHousenumber() {
         Random myGenerator = new Random();
-        int houseNumber = currentNumber;
-        while (houseNumber == currentNumber) {
-            houseNumber = myGenerator.nextInt(getImageNames().length);
+        int houseNumberGenerated = currentNumber;
+        while (houseNumberGenerated == currentNumber || houseNumberGenerated == (currentNumber + 1)) {
+            houseNumberGenerated = myGenerator.nextInt(getImageNames().length);
         }
-        return houseNumber;
+        return houseNumberGenerated;
     }
 
     public void displayHousenumber(int p_number) {
         try {
             ((ImageView) findViewById(R.id.imageView)).setImageDrawable(getImage(p_number));
 
-            Bitmap bitmapHouseBefore = scaleBitmap(generateHousenumber());
-            ((ImageButton) findViewById(R.id.imageButtonOption1)).setImageDrawable(new BitmapDrawable(getApplicationContext().getResources()
-                    , bitmapHouseBefore));
+            Bitmap bitmapWrongHouse = scaleBitmap(generateHousenumber());
+            Bitmap bitmapHouseAfter = scaleBitmap(currentNumber + 1);
 
+            if (new Random().nextBoolean()) {
+                ((ImageButton) findViewById(R.id.imageButtonOption1)).setImageDrawable(new BitmapDrawable(getApplicationContext().getResources()
+                        , bitmapWrongHouse));
+                imageButtonCorrectChoice = ((ImageButton) findViewById(R.id.imageButtonOption2));
+                imageButtonCorrectChoice.setImageDrawable(new BitmapDrawable(getApplicationContext().getResources()
+                        , bitmapHouseAfter));
+            } else {
+                ((ImageButton) findViewById(R.id.imageButtonOption2)).setImageDrawable(new BitmapDrawable(getApplicationContext().getResources()
+                        , bitmapWrongHouse));
+                imageButtonCorrectChoice = ((ImageButton) findViewById(R.id.imageButtonOption1));
+                imageButtonCorrectChoice.setImageDrawable(new BitmapDrawable(getApplicationContext().getResources()
+                        , bitmapHouseAfter));
+            }
 
-            Bitmap bitmapHouseAfter = scaleBitmap(generateHousenumber());
-            ((ImageButton) findViewById(R.id.imageButtonOption2)).setImageDrawable(new BitmapDrawable(getApplicationContext().getResources()
-                    , bitmapHouseAfter));
         } catch (Exception e) {
             Log.e("BLA", e.getMessage());
         }
@@ -205,6 +216,20 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onClick(View v) {
         currentNumber++;
-        displayHousenumber(currentNumber);
+
+        if(v.getId() == imageButtonCorrectChoice.getId()){
+            Toast.makeText(getApplicationContext(), "Stimmt!", Toast.LENGTH_SHORT).show();
+            score++;
+        }else{
+            Toast.makeText(getApplicationContext(), "NOPE.", Toast.LENGTH_SHORT).show();
+        }
+
+        if(currentNumber >= (imageNames.length-1)){
+            Toast.makeText(getApplicationContext(), "Dein Score "+score, Toast.LENGTH_LONG).show();
+            finish();
+        }else{
+            displayHousenumber(currentNumber);
+        }
+
     }
 }
