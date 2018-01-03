@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -13,11 +14,17 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Random;
+
+import de.pasligh.android.tools.Flags;
+
+import static de.pasligh.android.tools.Flags.LOG;
+import static de.pasligh.android.tools.Flags.STREET_LEFT;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -45,9 +52,9 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     public String[] getImageNames() {
         if (null == imageNames) {
             try {
-                imageNames = getAssets().list("hauptkanalLinks");
+                imageNames = getAssets().list(STREET_LEFT);
             } catch (IOException e) {
-                Log.e("BLA", e.getMessage());
+                Log.e(LOG, e.getMessage());
             }
         }
 
@@ -61,6 +68,28 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     private View mContentView;
     private View mControlsView;
 
+    public CountDownTimer getTimer() {
+        if (timer == null) {
+            timer = new CountDownTimer(Flags.COUNTDOWN, 1000) {
+
+
+                @Override
+                public void onTick(long millisUntilFinished) {
+                    ((TextView) findViewById(R.id.textViewTimer)).setText(String.valueOf(millisUntilFinished/1000));
+                }
+
+                @Override
+                public void onFinish() {
+                    finish();
+                }
+            };
+        }
+
+        return timer;
+    }
+
+    private CountDownTimer timer;
+
     private final Runnable mShowPart2Runnable = new Runnable() {
         @Override
         public void run() {
@@ -70,13 +99,6 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                 actionBar.show();
             }
             mControlsView.setVisibility(View.VISIBLE);
-        }
-    };
-    private boolean mVisible;
-    private final Runnable mHideRunnable = new Runnable() {
-        @Override
-        public void run() {
-            hide();
         }
     };
 
@@ -90,13 +112,13 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
 
-        mVisible = true;
         mControlsView = findViewById(R.id.GameContentLayout);
 
         ((ImageButton) findViewById(R.id.imageButtonOption1)).setOnClickListener(this);
         ((ImageButton) findViewById(R.id.imageButtonOption2)).setOnClickListener(this);
 
         displayHousenumber(currentNumber);
+        getTimer().start();
     }
 
     public int generateHousenumber() {
@@ -130,7 +152,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             }
 
         } catch (Exception e) {
-            Log.e("BLA", e.getMessage());
+            Log.e(LOG, e.getMessage());
         }
     }
 
@@ -166,15 +188,6 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
 
     @Override
-    protected void onPostCreate(Bundle savedInstanceState) {
-        super.onPostCreate(savedInstanceState);
-
-        // Trigger the initial hide() shortly after the activity has been
-        // created, to briefly hint to the user that UI controls
-        // are available.
-    }
-
-    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == android.R.id.home) {
@@ -185,51 +198,27 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         return super.onOptionsItemSelected(item);
     }
 
-    private void toggle() {
-        if (mVisible) {
-            hide();
-        } else {
-            show();
-        }
-    }
-
-    private void hide() {
-        // Hide UI first
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.hide();
-        }
-        mControlsView.setVisibility(View.GONE);
-        mVisible = false;
-
-    }
-
-    @SuppressLint("InlinedApi")
-    private void show() {
-        // Show the system bar
-        mContentView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION);
-        mVisible = true;
-
-    }
-
     @Override
     public void onClick(View v) {
         currentNumber++;
 
-        if(v.getId() == imageButtonCorrectChoice.getId()){
+        if (v.getId() == imageButtonCorrectChoice.getId()) {
             Toast.makeText(getApplicationContext(), "Stimmt!", Toast.LENGTH_SHORT).show();
             score++;
-        }else{
+        } else {
             Toast.makeText(getApplicationContext(), "NOPE.", Toast.LENGTH_SHORT).show();
         }
 
-        if(currentNumber >= (imageNames.length-1)){
-            Toast.makeText(getApplicationContext(), "Dein Score "+score, Toast.LENGTH_LONG).show();
+        if (currentNumber >= (imageNames.length - 1)) {
             finish();
-        }else{
+        } else {
             displayHousenumber(currentNumber);
         }
+    }
 
+    @Override
+    public void finish() {
+        Toast.makeText(getApplicationContext(), "Dein Score " + score, Toast.LENGTH_LONG).show();
+        super.finish();
     }
 }
