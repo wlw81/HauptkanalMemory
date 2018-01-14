@@ -5,4 +5,6 @@
     <string name="title_activity_game">GameActivity</string>
     <string name="dummy_button">Dummy Button</string>
     <string name="dummy_content">DUMMY\nCONTENT</string>
+    <string name="hauptkanalLinks">Hauptkanal Links</string>
+    <string name="hauptkanalRechts">Hauptkanal Rechts</string>
 </resources>

@@ -6,9 +6,10 @@ package de.pasligh.android.tools;
 
 public final class Flags {
 
-    public final static String STREET_RIGHT = "hauptkanalLinks";
+    public final static String STREET_RIGHT = "hauptkanalRechts";
     public final static String STREET_LEFT = "hauptkanalLinks";
+    public final static String STREET = "SEITE";
     public final static String LOG = "HAUPTKANAL";
-    public final static int COUNTDOWN = 10000;
+    public final static int COUNTDOWN = 90000;
 
 }

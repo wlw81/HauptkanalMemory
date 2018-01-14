@@ -9,6 +9,12 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
+
+import de.pasligh.android.tools.Flags;
+
+import static de.pasligh.android.tools.Flags.STREET;
 
 public class StartGameActivity extends AppCompatActivity {
 
@@ -24,9 +30,17 @@ public class StartGameActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent callGame = new Intent(getApplicationContext(), GameActivity.class);
+
+                String street = Flags.STREET_LEFT;
+                if (((RadioButton) findViewById(R.id.radioButtonHauptkanalRechts)).isChecked()) {
+                    street = Flags.STREET_RIGHT;
+                }
+
+                callGame.putExtra(STREET, street);
                 startActivity(callGame);
             }
         });
+
     }
 
     @Override
