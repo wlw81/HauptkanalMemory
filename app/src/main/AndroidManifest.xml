@@ -24,7 +24,7 @@
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/title_activity_game"
             android:parentActivityName=".StartGameActivity"
-            android:theme="@style/FullscreenTheme">
+            android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="de.pasligh.android.hauptkanalmemory.StartGameActivity" />

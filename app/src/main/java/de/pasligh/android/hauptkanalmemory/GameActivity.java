@@ -3,7 +3,9 @@ package de.pasligh.android.hauptkanalmemory;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.media.SoundPool;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
@@ -35,8 +37,11 @@ import static de.pasligh.android.tools.Flags.LOG;
  */
 public class GameActivity extends AppCompatActivity implements View.OnClickListener {
 
-    MediaPlayer mpBad;
-    MediaPlayer mpFlick;
+    int spBad;
+    int spFlick;
+    int spSwoosh;
+    int spSuck;
+    SoundPool soundPool;
     ImageButton imgButton1;
     ImageButton imgButton2;
     ImageButton imgButton3;
@@ -146,8 +151,12 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
 
         displayHousenumber(currentNumber);
-        mpBad = MediaPlayer.create(this, R.raw.bad);
-        mpFlick = MediaPlayer.create(this, R.raw.flick);
+        soundPool = new SoundPool.Builder().build();
+
+        spBad = soundPool.load(this, R.raw.bad, 1);
+        spFlick = soundPool.load(this, R.raw.flick, 1);
+        spSuck = soundPool.load(this, R.raw.suck, 1);
+        spSwoosh = soundPool.load(this, R.raw.swoosh, 1);
         getTimer().start();
     }
 
@@ -205,10 +214,27 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             final Animation slideUp = AnimationUtils.loadAnimation(GameActivity.this, R.anim.slide_up);
             imgButton1.setVisibility(View.VISIBLE);
             imgButton1.startAnimation(slideUp);
-            imgButton2.setVisibility(View.VISIBLE);
+            soundPool.play(spSwoosh, 1, 1, 0, 0, 1);
+            slideUp.setStartOffset(200);
             imgButton2.startAnimation(slideUp);
-            imgButton3.setVisibility(View.VISIBLE);
+            myHandler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    imgButton2.setVisibility(View.VISIBLE);
+                    soundPool.play(spSwoosh, 1, 1, 0, 0, 1);
+
+                }
+            }, 150);
+
+            slideUp.setStartOffset(400);
             imgButton3.startAnimation(slideUp);
+            myHandler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    imgButton3.setVisibility(View.VISIBLE);
+                    soundPool.play(spSwoosh, 1, 1, 0, 0, 1);
+                }
+            }, 350);
 
         } catch (Exception e) {
             Log.e(LOG, e.getMessage());
@@ -262,11 +288,11 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         currentNumber++;
 
         if (v.getId() == imageButtonCorrectChoice.getId()) {
-            mpFlick.start();
+            soundPool.play(spFlick, 1, 1, 1, 0, 1);
             score++;
         } else {
             score--;
-            mpBad.start();
+            soundPool.play(spBad, 1, 1, 1, 0, 1);
         }
 
         final Animation scaleAnim = AnimationUtils.loadAnimation(this, R.anim.animate);
@@ -274,14 +300,17 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         final Animation slideDownFast = AnimationUtils.loadAnimation(GameActivity.this, R.anim.slide_down);
         if(imageButtonCorrectChoice != imgButton1){
             imgButton1.startAnimation(slideDown);
+            soundPool.play(spSuck, 1, 1, 0, 0, 1);
             imgButton1.setVisibility(View.GONE);
         }
         if(imageButtonCorrectChoice != imgButton2){
             imgButton2.startAnimation(slideDown);
+            soundPool.play(spSuck, 1, 1, 0, 0, 1);
             imgButton2.setVisibility(View.GONE);
         }
         if(imageButtonCorrectChoice != imgButton3){
             imgButton3.startAnimation(slideDown);
+            soundPool.play(spSuck, 1, 1, 0, 0, 1);
             imgButton3.setVisibility(View.GONE);
 
         }
@@ -297,6 +326,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                 if (currentNumber >= (imageNames.length - 1)) {
                     finish();
                 } else {
+                    soundPool.play(spSuck, 1, 1, 0, 0, 1);
                     imageButtonCorrectChoice.startAnimation(slideDownFast);
                     slideDownFast.setAnimationListener(new Animation.AnimationListener() {
                         @Override
